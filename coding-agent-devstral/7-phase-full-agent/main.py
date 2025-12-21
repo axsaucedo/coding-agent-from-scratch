@@ -7,7 +7,7 @@ class CodingAgent:
     """Complete Python development agent"""
 
     def __init__(self):
-        self.model = 'devstral-2-small'
+        self.model = 'devstral-small-2'
 
     def chat(self, prompt):
         """Send prompt to ollama"""
