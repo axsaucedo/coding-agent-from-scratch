@@ -6,7 +6,7 @@ def chat(prompt):
     try:
         response = requests.post('http://localhost:11434/api/generate',
                                json={
-                                   'model': 'devstral-2-small',
+                                   'model': 'devstral-small-2',
                                    'prompt': prompt,
                                    'stream': False
                                })
