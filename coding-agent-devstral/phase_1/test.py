@@ -17,4 +17,3 @@ def test_hello_world():
 def test_function_creation():
     response = chat_stream("Write function to add two numbers")
     assert judge_response(response, "Contains function definition that adds two numbers")
-

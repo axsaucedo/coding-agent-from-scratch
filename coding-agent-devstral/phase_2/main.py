@@ -1,10 +1,8 @@
-import httpx
-import json
 import glob
 import re
 import ast
 
-MAX_TOOL_ATTEMPTS=3
+from phase_1.main import chat_stream
 
 def read_python_file(filepath):
     """Read and return the contents of a Python file."""
@@ -18,20 +16,12 @@ def list_python_files():
 TOOLS = [read_python_file, list_python_files]
 TOOL_MAP = {fn.__name__: fn for fn in TOOLS}
 
-def chat_stream(prompt):
-    full = ""
-    with httpx.stream("POST", "http://localhost:11434/api/generate",
-                     json={'model': 'devstral-small-2', 'prompt': prompt, 'stream': True},
-                     timeout=None) as r:
-        for line in r.iter_lines():
-            if line and (token := json.loads(line).get('response', '')):
-                print(token, end='', flush=True)
-                full += token
-    print()
-    return full
+def agent_with_tools(user_input, tools=None):
+    if tools is None:
+        tools = TOOLS
 
-def agent_with_tools(user_input):
-    tools_desc = "\n".join([f"- {fn.__name__}: {fn.__doc__}" for fn in TOOLS])
+    tool_map = {fn.__name__: fn for fn in tools}
+    tools_desc = "\n".join([f"- {fn.__name__}: {fn.__doc__}" for fn in tools])
 
     system = f"""You are a helpful assistant with access to tools.
 
@@ -50,7 +40,7 @@ After using a tool, the output will be provided as context."""
 
     prompt = f"{system}\n\nUser: {user_input}"
 
-    for iteration in range(MAX_TOOL_ATTEMPTS):
+    for iteration in range(3):
         response = chat_stream(prompt)
 
         tool_match = re.search(r'TOOL:(\w+)\((.*?)\)', response)
@@ -64,13 +54,13 @@ After using a tool, the output will be provided as context."""
         if tool_name == "NONE":
             return response
 
-        if tool_name in TOOL_MAP:
+        if tool_name in tool_map:
             if params_str:
                 params = ast.literal_eval(f"[{params_str}]")
             else:
                 params = []
 
-            result = TOOL_MAP[tool_name](*params)
+            result = tool_map[tool_name](*params)
             prompt = f"{system}\n\nTool executed: {tool_name}({params_str})\nResult:\n{result}\n\nNow provide your analysis:"
         else:
             return response
