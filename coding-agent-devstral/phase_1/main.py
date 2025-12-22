@@ -15,6 +15,7 @@ def chat(prompt):
 
 
 def chat_stream(prompt):
+    print(f"Received prompt: {prompt}")
     full = ""
     with httpx.stream("POST", "http://localhost:11434/api/generate",
                      json={'model': 'devstral-small-2', 'prompt': prompt, 'stream': True},
