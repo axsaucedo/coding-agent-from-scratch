@@ -1,76 +1,57 @@
-import requests
 import glob
-import os
+import httpx
+import json
 
-def chat(prompt):
-    """Send prompt to ollama, return response"""
-    try:
-        response = requests.post('http://localhost:11434/api/generate',
-                               json={
-                                   'model': 'devstral-small-2',
-                                   'prompt': prompt,
-                                   'stream': False
-                               })
-        return response.json()['response']
-    except Exception as e:
-        return f"Error: {e}"
+def chat_stream(prompt):
+    print(f"Received prompt: {prompt}")
+    full = ""
+    with httpx.stream("POST", "http://localhost:11434/api/generate",
+                     json={
+                         'model': 'devstral-small-2',
+                         'prompt': prompt,
+                         'stream': True
+                     }) as r:
+        for line in r.iter_lines():
+            if line and (token := json.loads(line).get('response', '')):
+                print(token, end='', flush=True)
+                full += token
+    print()
+    return full
 
 def analyze_project():
-    """Analyze Python project structure"""
     files = glob.glob("**/*.py", recursive=True)
     context = "Project Analysis:\n"
-
-    for f in files[:5]:  # Limit to 5 files to avoid context overflow
-        try:
-            with open(f, 'r') as file:
-                content = file.read()[:200]  # First 200 chars
-                context += f"\nFile {f}:\n{content}...\n"
-        except Exception as e:
-            context += f"\nFile {f}: Error reading - {e}\n"
-
+    for f in files[:5]:
+        with open(f, 'r') as file:
+            content = file.read()[:200]
+            context += f"\nFile {f}:\n{content}...\n"
     return context
 
 def find_functions():
-    """Find all functions in Python files"""
     files = glob.glob("**/*.py", recursive=True)
     functions = []
-
     for f in files:
-        try:
-            with open(f, 'r') as file:
-                lines = file.readlines()
-                for line_num, line in enumerate(lines, 1):
-                    if line.strip().startswith('def '):
-                        func_name = line.strip().split('(')[0].replace('def ', '')
-                        functions.append(f"{f}:{line_num} - {func_name}")
-        except Exception:
-            continue
-
+        with open(f, 'r') as file:
+            lines = file.readlines()
+            for line_num, line in enumerate(lines, 1):
+                if line.strip().startswith('def '):
+                    func_name = line.strip().split('(')[0].replace('def ', '')
+                    functions.append(f"{f}:{line_num} - {func_name}")
     return functions
 
 def context_aware_agent(prompt):
-    """Agent that understands project context"""
     prompt_lower = prompt.lower()
-
     if "analyze this python project" in prompt_lower or "analyze project" in prompt_lower:
         context = analyze_project()
-        analysis_prompt = f"Based on this project structure: {context}\nProvide a summary of what this codebase does."
-        return chat(analysis_prompt)
-
+        return chat_stream(f"Based on this project structure: {context}\nProvide a summary of what this codebase does.")
     elif "what does this codebase do" in prompt_lower:
         context = analyze_project()
-        summary_prompt = f"Based on these files: {context}\nExplain what this codebase is for."
-        return chat(summary_prompt)
-
+        return chat_stream(f"Based on these files: {context}\nExplain what this codebase is for.")
     elif "find all functions" in prompt_lower or "list functions" in prompt_lower:
         functions = find_functions()
-        if functions:
-            return f"Functions found:\n" + "\n".join(functions)
-        else:
-            return "No functions found in Python files."
-
+        return f"Functions found:\n" + "\n".join(functions) if functions else "No functions found in Python files."
     else:
-        return chat(prompt)
+        return chat_stream(prompt)
 
 if __name__ == "__main__":
     print(context_aware_agent(input("Ask: ")))
