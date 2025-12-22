@@ -16,7 +16,7 @@ def list_python_files():
 TOOLS = [read_python_file, list_python_files]
 TOOL_MAP = {fn.__name__: fn for fn in TOOLS}
 
-def agent_with_tools(user_input, tools=None):
+def agent_with_tools(user_input, tools=TOOLS):
     if tools is None:
         tools = TOOLS
 
@@ -56,7 +56,10 @@ After using a tool, the output will be provided as context."""
 
         if tool_name in tool_map:
             if params_str:
-                params = ast.literal_eval(f"[{params_str}]")
+                try:
+                    params = ast.literal_eval(f"[{params_str}]")
+                except (SyntaxError, ValueError):
+                    params = [params_str]
             else:
                 params = []
 
