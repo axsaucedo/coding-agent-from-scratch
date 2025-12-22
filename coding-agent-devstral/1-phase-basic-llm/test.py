@@ -1,5 +1,5 @@
 import requests
-from main import chat
+from main import chat_stream
 
 def judge_response(response, expected_behavior):
     prompt = f"""Judge this response: "{response}"
@@ -11,10 +11,10 @@ def judge_response(response, expected_behavior):
     return 'PASS' in result.json()['response'].upper()
 
 def test_hello_world():
-    response = chat("Create hello world in Python")
+    response = chat_stream("Create hello world in Python")
     assert judge_response(response, "Contains Python print statement with hello world")
 
 def test_function_creation():
-    response = chat("Write function to add two numbers")
+    response = chat_stream("Write function to add two numbers")
     assert judge_response(response, "Contains function definition that adds two numbers")
 
