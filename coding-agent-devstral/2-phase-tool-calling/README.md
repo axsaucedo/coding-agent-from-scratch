@@ -1,7 +1,7 @@
 # Phase 2: Tool Calling
 
 ## What it does
-Agent can read Python files and list files in directory based on prompt keywords.
+Agent with an agentic loop that can use tools (read_file, list_python_files). LLM sees tool descriptions and can request tool usage. Agent detects requests, executes tools, and feeds results back.
 
 ## Run it
 ```bash
@@ -10,6 +10,7 @@ pytest test.py  # Run tests
 ```
 
 ## Key concepts
-- Keyword-based tool detection
-- File system operations
-- Simple prompt parsing
+- Tool definitions with docstrings
+- Agentic loop with tool execution
+- LLM prompt includes tool descriptions
+- Tool detection and execution cycle
