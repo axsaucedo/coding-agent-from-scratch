@@ -16,7 +16,7 @@ Requirements:
 - Include a main section if it's a script
 - Make it simple and functional
 
-Only return the Python code, no explanations."""
+Only return the Python code, nothing else (e.g. no text, explanations, etc)."""
 
     code = chat_stream(code_prompt)
 
