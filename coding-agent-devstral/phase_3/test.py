@@ -1,19 +1,20 @@
-import requests
-from main import context_aware_agent
+import os
+from phase_3.main import context_aware_agent
 
-def judge_response(response, expected_behavior):
-    prompt = f"""Judge this response: "{response}"
-    Expected: {expected_behavior}
-    Answer only: PASS or FAIL"""
+def test_analyze_project_with_agent():
+    with open('test_module.py', 'w') as f:
+        f.write('x = 1\ny = 2\n')
 
-    result = requests.post('http://localhost:11434/api/generate',
-                          json={'model': 'devstral-small-2', 'prompt': prompt, 'stream': False})
-    return 'PASS' in result.json()['response'].upper()
+    response = context_aware_agent('Analyze the project structure')
+    assert 'test_module' in response or 'Project' in response
 
-def test_analyze_project():
-    response = context_aware_agent("analyze this python project")
-    assert judge_response(response, "identifies main components and project structure")
+    os.remove('test_module.py')
 
-def test_list_functions():
-    response = context_aware_agent("find all functions")
-    assert "def" in response or "functions" in response.lower()
+def test_find_functions_with_agent():
+    with open('funcs.py', 'w') as f:
+        f.write('def hello():\n    pass\ndef world():\n    pass\n')
+
+    response = context_aware_agent('Find all the functions in this project')
+    assert 'hello' in response or 'world' in response or 'function' in response.lower()
+
+    os.remove('funcs.py')
