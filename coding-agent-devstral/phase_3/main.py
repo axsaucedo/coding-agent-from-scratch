@@ -3,6 +3,7 @@ import glob
 from phase_1.main import chat_stream
 from phase_2.main import agent_with_tools, read_python_file, list_python_files
 
+
 def analyze_project():
     """Analyze Python project structure and summarize contents."""
     files = glob.glob("**/*.py", recursive=True)
