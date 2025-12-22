@@ -16,10 +16,7 @@ def list_python_files():
 TOOLS = [read_python_file, list_python_files]
 TOOL_MAP = {fn.__name__: fn for fn in TOOLS}
 
-def agent_with_tools(user_input, tools=TOOLS):
-    if tools is None:
-        tools = TOOLS
-
+def agent_with_tools(user_input, tools=TOOLS, system_prompt=""):
     tool_map = {fn.__name__: fn for fn in tools}
     tools_desc = "\n".join([f"- {fn.__name__}: {fn.__doc__}" for fn in tools])
 
@@ -41,9 +38,9 @@ After using a tool, the output will be provided as context."""
     prompt = f"{system}\n\nUser: {user_input}"
 
     for iteration in range(3):
-        response = chat_stream(prompt)
+        response = chat_stream(prompt, system_prompt=system_prompt)
 
-        tool_match = re.search(r'TOOL:(\w+)\((.*?)\)', response)
+        tool_match = re.search(r'TOOL:(\w+)\((.*?)\)', response, re.DOTALL)
 
         if not tool_match:
             return response
@@ -64,7 +61,7 @@ After using a tool, the output will be provided as context."""
                 params = []
 
             result = tool_map[tool_name](*params)
-            prompt = f"{system}\n\nTool executed: {tool_name}({params_str})\nResult:\n{result}\n\nNow provide your analysis:"
+            prompt = f"{system}\n\nTool executed: {tool_name}({params_str})\nResult:\n{result}\n\nNow provide your response; do not comment about the tools and only provide the response on the original request from the user:"
         else:
             return response
 
