@@ -1,0 +1,11 @@
+[project]
+name = "coding-agent-devstral"
+version = "0.1.0"
+description = "Progressive coding agent framework"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests",
+    "pytest",
+    "httpx>=0.28.1",
+]
