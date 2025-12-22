@@ -6,8 +6,8 @@ from phase_3.main import analyze_project, find_functions
 from phase_4.main import create_plan
 from phase_5.main import generate_code, create_python_file
 
-def test_python_file(filepath):
-    """Test if Python file runs without errors."""
+def run_python_file(filepath):
+    """Run a Python file and check if it executes without errors."""
     if not os.path.exists(filepath):
         return f"File {filepath} not found"
 
@@ -20,23 +20,15 @@ def test_python_file(filepath):
                           capture_output=True, text=True, timeout=10)
 
     if result.returncode == 0:
-        return f"✓ {filepath} runs successfully"
+        return f"{filepath} runs successfully"
     else:
-        return f"✗ {filepath} failed: {result.stderr}"
-
-def validate_code(code_snippet):
-    """Validate Python code snippet for syntax errors."""
-    try:
-        compile(code_snippet, '<string>', 'exec')
-        return "✓ Code syntax is valid"
-    except SyntaxError as e:
-        return f"✗ Syntax error: {e}"
+        return f"{filepath} failed: {result.stderr}"
 
 TOOLS = [read_python_file, list_python_files, analyze_project, find_functions, create_plan,
-         generate_code, create_python_file, test_python_file, validate_code]
+         generate_code, create_python_file, run_python_file]
 
-def testing_agent(user_input):
+def code_testing_agent(user_input):
     return agent_with_tools(user_input, tools=TOOLS)
 
 if __name__ == "__main__":
-    print(testing_agent(input("What would you like to create and test: ")))
+    print(code_testing_agent(input("What would you like to create and test: ")))
