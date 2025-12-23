@@ -1,10 +1,10 @@
 import marimo
 
 __generated_with = "0.18.4"
-app = marimo.App(width="medium")
+app = marimo.App(width="medium", layout_file="layouts/slides.slides.json")
 
 @app.cell
-def __():
+def _():
     import marimo as mo
     import httpx
     import json
@@ -16,7 +16,7 @@ def __():
     return mo, httpx, json, subprocess, os, glob, re, ast
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 # 🤖 Building a Coding Agent from Scratch
 
@@ -27,7 +27,7 @@ coding agent, starting from simple LLM communication and building up to a full d
 """)
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## The Problem
 
@@ -51,7 +51,7 @@ without breaking previous functionality.
 """)
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## The 6-Phase Journey
 
@@ -68,7 +68,7 @@ Each phase builds on the previous, progressively adding new capabilities and too
 """)
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## Core Concepts We'll Learn
 
@@ -96,7 +96,7 @@ Executing generated code and validating results.
 # ============================================================================
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## Phase 1: Basic LLM Chat 🗣️
 
@@ -113,7 +113,7 @@ def __(mo):
 """)
 
 @app.cell
-def __(mo, httpx, json):
+def _(mo, httpx, json):
     def chat_stream(prompt: str, system_prompt: str = "") -> str:
         """Stream-based chat interface with local LLM.
 
@@ -158,7 +158,7 @@ def chat_stream(prompt: str, system_prompt: str = "") -> str:
     return chat_stream
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ### Phase 1 Demo
 
@@ -179,7 +179,7 @@ The simplest agent: just chat with an LLM.
 # ============================================================================
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## Phase 2: Tool-Enabled Agent 🛠️
 
@@ -199,7 +199,7 @@ def __(mo):
 """)
 
 @app.cell
-def __(mo, glob, os, re, json, httpx):
+def _(mo, glob, os, re, json, httpx):
     def read_python_file(filepath: str) -> str:
         """Read and return the contents of a Python file."""
         try:
@@ -277,7 +277,7 @@ TOOL:list_python_files(".")
     return agent_with_tools, read_python_file, list_python_files
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ### Phase 2 Demo
 
@@ -294,7 +294,7 @@ The agent moves from "just chat" to "can take actions".
 # ============================================================================
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## Phase 3: Context-Aware Agent 🧠
 
@@ -311,7 +311,7 @@ def __(mo):
 """)
 
 @app.cell
-def __(mo, ast, json, glob, os):
+def _(mo, ast, json, glob, os):
     def analyze_project(directory: str = ".") -> str:
         """Analyze and describe the project structure."""
         try:
@@ -351,7 +351,7 @@ This enables better decision-making and planning.
     return analyze_project, find_functions
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ### Phase 3 Demo
 
@@ -369,7 +369,7 @@ Agent can now:
 # ============================================================================
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## Phase 4: Planning Agent 📋
 
@@ -386,7 +386,7 @@ def __(mo):
 """)
 
 @app.cell
-def __(mo, httpx, json):
+def _(mo, httpx, json):
     def create_plan(objective: str) -> str:
         """Generate a structured plan for an objective."""
         planning_prompt = f"""Objective: {objective}
@@ -426,7 +426,7 @@ Agent is now **strategic**, not just reactive.
     return create_plan
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ### Phase 4 Demo
 
@@ -447,7 +447,7 @@ Agent has become structured and deliberate.
 # ============================================================================
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## Phase 5: Code Generation Agent 💻
 
@@ -464,7 +464,7 @@ def __(mo):
 """)
 
 @app.cell
-def __(mo, ast, httpx, json):
+def _(mo, ast, httpx, json):
     def generate_code(description: str) -> str:
         """Generate Python code from a description."""
         prompt = f"Write Python code for: {description}\n\nCode:"
@@ -509,7 +509,7 @@ Agents now **AUTOMATE coding work**.
     return generate_code, create_python_file
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ### Phase 5 Demo
 
@@ -534,7 +534,7 @@ Agents are now **productive**.
 # ============================================================================
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## Phase 6: Testing Agent ✅
 
@@ -551,7 +551,7 @@ def __(mo):
 """)
 
 @app.cell
-def __(mo, subprocess, ast, httpx, json):
+def _(mo, subprocess, ast, httpx, json):
     def run_python_file(filepath: str) -> str:
         """Run a Python file and capture output."""
         try:
@@ -587,7 +587,7 @@ Agents now provide **COMPLETE SOLUTIONS**.
     return run_python_file
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ### Phase 6 Demo
 
@@ -609,7 +609,7 @@ Agent has evolved from reactive to **complete**.
 # ============================================================================
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## 🎯 Complete Agent Framework
 
@@ -644,7 +644,7 @@ Each new tool multiplies agent capability.
 """)
 
 @app.cell
-def __(mo):
+def _(mo):
     mo.md("""
 ## 🚀 Real-World Applications
 
