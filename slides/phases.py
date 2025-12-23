@@ -5,6 +5,19 @@ app = marimo.App()
 
 
 @app.cell
+def _(mo):
+    mo.md("""
+    # 🤖 Building a Coding Agent from Scratch
+
+    ## From Basic LLM to Multi-Tool Agentic System
+
+    An interactive journey through 6 progressive phases showing how to build a sophisticated
+    coding agent, starting from simple LLM communication and building up to a full development agent.
+    """)
+    return
+
+
+@app.cell(hide_code=True)
 def _():
     import httpx
     import json
@@ -14,9 +27,11 @@ def _():
     import ast
     import subprocess
     import os
+    import marimo as mo
+
 
     print("✓ Imports loaded")
-    return ast, glob, httpx, json, os, re, requests, subprocess
+    return ast, glob, httpx, json, mo, os, re, requests
 
 
 @app.cell
@@ -193,132 +208,132 @@ def _(
     return create_plan, judge_response
 
 
-@app.cell
-def _(chat_stream):
-    print('\n' + '=' * 60)
-    print('PHASE 5: Code Generation')
-    print('=' * 60)
-
-    def generate_code(description):
-        """Generate Python code from a description."""
-        code_prompt = f"Write Python code for: {description}\n\nRequirements:\n- Complete, working Python code\n- Include proper function definitions\n- Add basic error handling where appropriate\n- Include a main section if it's a script\n- Make it simple and functional\n\nOnly return the Python code, nothing else (e.g. no text, explanations, etc)."
-        code = chat_stream(code_prompt)
-        if '```python' in code:
-            code = code.split('```python')[1].split('```')[0].strip()
-        elif '```' in code:
-            code = code.split('```')[1].split('```')[0].strip()
-        return code
-
-    def create_python_file(description, filename='generated.py'):
-        """Create and save a Python file from description."""
-        code = generate_code(description)
-        with open(filename, 'w') as _f:
-            _f.write(code)
-        return filename
-    print('Generating code for: add_numbers function')
-    _response = generate_code("A function named 'add_numbers' that takes two parameters and returns their sum")
-    lines = _response.split('\n')
-    func_lines = []
-    in_function = False
-    for line in lines:
-        if 'def add_numbers' in line:
-            in_function = True
-        if in_function:
-            if line.strip().startswith('if __name__'):
-                break
-            func_lines.append(line)
-    code = '\n'.join(func_lines).strip()
-    # Execute Phase 5 example
-    namespace = {}
-    exec(code, namespace)
-    add_numbers = namespace['add_numbers']
-    # Extract and execute function
-    result1 = add_numbers(2, 3)
-    result2 = add_numbers(10, 20)
-    result3 = add_numbers(-5, 10)
-    print(f'✓ Generated and tested add_numbers():')
-    print(f'  add_numbers(2, 3) = {result1} (expected 5)')
-    print(f'  add_numbers(10, 20) = {result2} (expected 30)')
-    print(f'  add_numbers(-5, 10) = {result3} (expected 5)')
-    assert result1 == 5 and result2 == 30 and (result3 == 5)
-    # Test the function
-    print(f'✓ All tests passed!')
-    return create_python_file, generate_code
-
-
-@app.cell
-def _(
-    agent_with_tools,
-    analyze_project,
-    create_plan,
-    create_python_file,
-    find_functions,
-    generate_code,
-    judge_response,
-    list_python_files,
-    os,
-    read_python_file,
-    subprocess,
-):
-    print('\n' + '=' * 60)
-    print('PHASE 6: Testing Agent (Full Development Cycle)')
-    print('=' * 60)
-
-    def run_python_file(filepath):
-        """Run a Python file and check if it executes without errors."""
-        if not os.path.exists(filepath):
-            return f'File {filepath} not found'
-        with open(filepath, 'r') as _f:
-            code = _f.read()
-        try:
-            compile(code, filepath, 'exec')
-        except SyntaxError as e:
-            return f'Syntax error in {filepath}: {e}'
-        try:
-            result = subprocess.run(['python', filepath], capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-                return f'✓ {filepath} runs successfully\nOutput:\n{result.stdout}'
-            else:
-                return f'✗ {filepath} failed:\n{result.stderr}'
-        except subprocess.TimeoutExpired:
-            return f'✗ {filepath} timed out (>10 seconds)'
-        except Exception as e:
-            return f'✗ Error running {filepath}: {e}'
-    TOOLS_PHASE6 = [read_python_file, list_python_files, analyze_project, find_functions, create_plan, generate_code, create_python_file, run_python_file]
-
-    def code_testing_agent(user_input):
-        return agent_with_tools(user_input, tools=TOOLS_PHASE6)
-    print('Creating file with runtime error (division by zero)...')
-    with open('test_error.py', 'w') as _f:
-        _f.write('x = 1 / 0')
-    print('Agent task: Run test_error.py and tell me what happens')
-    _response = code_testing_agent('Run test_error.py and tell me what happens')
-    _judge_result = judge_response(_response, 'expect error division by zero')
-    print(f'✓ Error detection validated: {('PASS' if _judge_result else 'FAIL')}')
-    # Execute Phase 6 example - detect runtime errors
-    os.remove('test_error.py')
-    return
-
-
-@app.cell
-def _():
-    print("\n" + "="*60)
-    print("COMPLETE: All 6 Phases Executed Successfully")
-    print("="*60)
-    print("""
-    Phase 1: ✓ Basic LLM Chat
-    Phase 2: ✓ Tool-Enabled Agent (file operations)
-    Phase 3: ✓ Context-Aware Agent (project analysis)
-    Phase 4: ✓ Planning Agent (with validation)
-    Phase 5: ✓ Code Generation (with execution)
-    Phase 6: ✓ Testing Agent (error detection)
-
-    Key patterns learned:
-    - Tool pattern: Functions as auto-discovered tools
-    - Agent loop: LLM → Parse → Execute → Feedback
-    - Progressive enhancement: Each phase builds on previous
-    """)
-    return
+# @app.cell
+# def _(chat_stream):
+#     print('\n' + '=' * 60)
+#     print('PHASE 5: Code Generation')
+#     print('=' * 60)
+# 
+#     def generate_code(description):
+#         """Generate Python code from a description."""
+#         code_prompt = f"Write Python code for: {description}\n\nRequirements:\n- Complete, working Python code\n- Include proper function definitions\n- Add basic error handling where appropriate\n- Include a main section if it's a script\n- Make it simple and functional\n\nOnly return the Python code, nothing else (e.g. no text, explanations, etc)."
+#         code = chat_stream(code_prompt)
+#         if '```python' in code:
+#             code = code.split('```python')[1].split('```')[0].strip()
+#         elif '```' in code:
+#             code = code.split('```')[1].split('```')[0].strip()
+#         return code
+# 
+#     def create_python_file(description, filename='generated.py'):
+#         """Create and save a Python file from description."""
+#         code = generate_code(description)
+#         with open(filename, 'w') as _f:
+#             _f.write(code)
+#         return filename
+#     print('Generating code for: add_numbers function')
+#     _response = generate_code("A function named 'add_numbers' that takes two parameters and returns their sum")
+#     lines = _response.split('\n')
+#     func_lines = []
+#     in_function = False
+#     for line in lines:
+#         if 'def add_numbers' in line:
+#             in_function = True
+#         if in_function:
+#             if line.strip().startswith('if __name__'):
+#                 break
+#             func_lines.append(line)
+#     code = '\n'.join(func_lines).strip()
+#     # Execute Phase 5 example
+#     namespace = {}
+#     exec(code, namespace)
+#     add_numbers = namespace['add_numbers']
+#     # Extract and execute function
+#     result1 = add_numbers(2, 3)
+#     result2 = add_numbers(10, 20)
+#     result3 = add_numbers(-5, 10)
+#     print(f'✓ Generated and tested add_numbers():')
+#     print(f'  add_numbers(2, 3) = {result1} (expected 5)')
+#     print(f'  add_numbers(10, 20) = {result2} (expected 30)')
+#     print(f'  add_numbers(-5, 10) = {result3} (expected 5)')
+#     assert result1 == 5 and result2 == 30 and (result3 == 5)
+#     # Test the function
+#     print(f'✓ All tests passed!')
+#     return create_python_file, generate_code
+# 
+# 
+# @app.cell
+# def _(
+#     agent_with_tools,
+#     analyze_project,
+#     create_plan,
+#     create_python_file,
+#     find_functions,
+#     generate_code,
+#     judge_response,
+#     list_python_files,
+#     os,
+#     read_python_file,
+#     subprocess,
+# ):
+#     print('\n' + '=' * 60)
+#     print('PHASE 6: Testing Agent (Full Development Cycle)')
+#     print('=' * 60)
+# 
+#     def run_python_file(filepath):
+#         """Run a Python file and check if it executes without errors."""
+#         if not os.path.exists(filepath):
+#             return f'File {filepath} not found'
+#         with open(filepath, 'r') as _f:
+#             code = _f.read()
+#         try:
+#             compile(code, filepath, 'exec')
+#         except SyntaxError as e:
+#             return f'Syntax error in {filepath}: {e}'
+#         try:
+#             result = subprocess.run(['python', filepath], capture_output=True, text=True, timeout=10)
+#             if result.returncode == 0:
+#                 return f'✓ {filepath} runs successfully\nOutput:\n{result.stdout}'
+#             else:
+#                 return f'✗ {filepath} failed:\n{result.stderr}'
+#         except subprocess.TimeoutExpired:
+#             return f'✗ {filepath} timed out (>10 seconds)'
+#         except Exception as e:
+#             return f'✗ Error running {filepath}: {e}'
+#     TOOLS_PHASE6 = [read_python_file, list_python_files, analyze_project, find_functions, create_plan, generate_code, create_python_file, run_python_file]
+# 
+#     def code_testing_agent(user_input):
+#         return agent_with_tools(user_input, tools=TOOLS_PHASE6)
+#     print('Creating file with runtime error (division by zero)...')
+#     with open('test_error.py', 'w') as _f:
+#         _f.write('x = 1 / 0')
+#     print('Agent task: Run test_error.py and tell me what happens')
+#     _response = code_testing_agent('Run test_error.py and tell me what happens')
+#     _judge_result = judge_response(_response, 'expect error division by zero')
+#     print(f'✓ Error detection validated: {('PASS' if _judge_result else 'FAIL')}')
+#     # Execute Phase 6 example - detect runtime errors
+#     os.remove('test_error.py')
+#     return
+# 
+# 
+# @app.cell
+# def _():
+#     print("\n" + "="*60)
+#     print("COMPLETE: All 6 Phases Executed Successfully")
+#     print("="*60)
+#     print("""
+#     Phase 1: ✓ Basic LLM Chat
+#     Phase 2: ✓ Tool-Enabled Agent (file operations)
+#     Phase 3: ✓ Context-Aware Agent (project analysis)
+#     Phase 4: ✓ Planning Agent (with validation)
+#     Phase 5: ✓ Code Generation (with execution)
+#     Phase 6: ✓ Testing Agent (error detection)
+# 
+#     Key patterns learned:
+#     - Tool pattern: Functions as auto-discovered tools
+#     - Agent loop: LLM → Parse → Execute → Feedback
+#     - Progressive enhancement: Each phase builds on previous
+#     """)
+#     return
 
 
 if __name__ == "__main__":
